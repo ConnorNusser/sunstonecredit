@@ -30,6 +30,7 @@ build/Release
 node_modules
 jspm_packages
 dist
+.parcel-cache
 
 # Optional npm cache directory
 .npm
@@ -50,7 +51,6 @@ profile-*
 .idea
 
 # vscode
-.vscode
 *code-workspace
 
 # clinic
