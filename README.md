@@ -1,23 +1,31 @@
-# Getting Started with [Fastify-CLI](https://www.npmjs.com/package/fastify-cli)
-This project was bootstrapped with Fastify-CLI.
+# Sunshine Corp
 
-## Available Scripts
+Boilerplate code for Sunshine Corp. (fullstack interview)
 
-In the project directory, you can run:
+## Installation
 
-### `npm run dev`
+```
+npm run setup
+```
 
-To start the app in dev mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+OR
 
-### `npm start`
+```
+cd backend && npm i
+cd client && npm i
+```
 
-For production mode
+## Run both BE and FE
 
-### `npm run test`
+To run both the back end and the front end run
 
-Run the test cases.
+```
+npm run dev
+```
 
-## Learn More
+## Individually
 
-To learn Fastify, check out the [Fastify documentation](https://www.fastify.io/docs/latest/).
+```
+cd backend && npm run dev
+cd client && npm run dev
+```

@@ -1,3 +1,5 @@
+import Main from './pages/Main';
+
 export default App = () => {
-    return (<div>Hello!</div>);
-}
+  return <Main />;
+};
