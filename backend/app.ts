@@ -1,5 +1,6 @@
 import Fastify from 'fastify';
 import { loanRoutes } from './routes/loanRoutes';
+import { campaignRoutes } from './routes/campaignRoutes';
 
 const fastify = Fastify({
   logger: true,
@@ -11,7 +12,7 @@ fastify.get('/health', async (request, reply) => {
 });
 
 fastify.register(loanRoutes, { prefix: '/loan' });
-fastify.register(loanRoutes, { prefix: '/campaign' });
+fastify.register(campaignRoutes, { prefix: '/campaign' });
 
 const start = async () => {
   try {
