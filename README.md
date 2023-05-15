@@ -27,7 +27,7 @@ npm run dev
 
 ```
 cd backend && npm run dev
-cd client && npm run dev
+cd client && npm start
 ```
 
 ## Problem 1
