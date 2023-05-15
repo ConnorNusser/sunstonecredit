@@ -8,7 +8,10 @@
     "setup": "npm i --prefix ./backend/ && npm i --prefix ./client/",
     "dev:be": "npm run dev --prefix ./backend/",
     "dev:fe": "npm start --prefix ./client/",
-    "dev": "npm-run-all --print-label --parallel \"dev:*\""
+    "dev": "npm-run-all --print-label --parallel \"dev:*\"",
+    "clean:be": "cd backend && rm -rf dist && rm -rf node_modules",
+    "clean:fe": "cd client && rm -rf .parcel-cache && rm -rf dist && rm -rf node_modules",
+    "clean": "rm -rf node_modules && npm run clean:be && npm run clean:fe"
   },
   "author": "Houman Sarabostani",
   "license": "ISC",
