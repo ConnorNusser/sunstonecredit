@@ -4,7 +4,7 @@
   "description": "Boilerplate application",
   "main": "dist/app.js",
   "scripts": {
-    "setup": "npm i --prefix ./backend/ && npm i --prefix ./client/",
+    "setup": "npm i && npm i --prefix ./backend/ && npm i --prefix ./client/",
     "dev:be": "npm run dev --prefix ./backend/",
     "dev:fe": "npm start --prefix ./client/",
     "dev": "npm-run-all --print-label --parallel \"dev:*\"",

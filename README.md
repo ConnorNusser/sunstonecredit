@@ -35,7 +35,7 @@ cd client && npm start
 Create a new api called `sunshine` in `campaignRoutes` that accepts query parameters `month` and `city` and returns the sunshine percentage of that city for the given month.
 If only `month` is provided, the API should return the percentages for the city for all months. If `city` is not provided, the percentages of all cities for the given month should be returned.
 
-`localhost:1234/campaign/sunshine?city=austin&month=november`
+`localhost:3000/campaign/sunshine?city=austin&month=november`
 
 For the data, you can use the `/backend/data/us_sunshine.csv` file.
 
