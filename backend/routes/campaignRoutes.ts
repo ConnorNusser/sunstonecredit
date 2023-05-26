@@ -1,7 +1,7 @@
 import { FastifyPluginCallback } from 'fastify';
 import { parse } from 'csv-parse/sync';
 
-const ALL = 'all';
+const ANN = 'ANN';
 
 const parserFunction = () => {
   const fs = require('fs');
