@@ -30,7 +30,7 @@ export default Cities = () => {
   };
   useEffect(() => {
     const asyncFunc = async () => {
-      let data = await requestCall();
+      //let data = await requestCall();
       //cityData.push(data);
       //setCityData(cityData);
     };
