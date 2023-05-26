@@ -57,8 +57,14 @@ export const campaignRoutes: FastifyPluginCallback = (
     (request, reply) => {
       let data = parserFunction();
       let month = request.query.month;
-
-      if (request.query.month != null && request.query.city != null) {
+      console.log(request.query.month);
+      console.log(request.query.city);
+      if (
+        request.query.month != null &&
+        request.query.city != null &&
+        request.query.city != '' &&
+        request.query.month != ''
+      ) {
         for (const vals of data) {
           const cityQueryEvaluated = cityEvaluation(request.query.city);
           if (cityQueryEvaluated == vals.CITY) {
@@ -71,7 +77,7 @@ export const campaignRoutes: FastifyPluginCallback = (
           }
         }
       }
-      if (request.query.month != null) {
+      if (request.query.month != null && request.query.month != '') {
         let returnSunArray: returnSun[] = [];
         for (const vals of data) {
           const sunshineData = createSunshineObject(
@@ -84,17 +90,19 @@ export const campaignRoutes: FastifyPluginCallback = (
         return reply.send({ sunArray: returnSunArray });
       }
 
-      if (request.query.city != null) {
+      if (request.query.city != null && request.query.city != '') {
         let returnSunArray: returnSun[] = [];
         for (const vals of data) {
-          const sunshineData = createSunshineObject(
-            vals,
-            ANN,
-            request.query.city
-          );
-          returnSunArray.push(sunshineData);
+          const cityQueryEvaluated = cityEvaluation(request.query.city);
+          if (cityQueryEvaluated == vals.CITY) {
+            const sunshineData = createSunshineObject(
+              vals,
+              ANN,
+              request.query.city
+            );
+            return reply.send({ sunArray: [sunshineData] });
+          }
         }
-        return reply.send({ sunArray: returnSunArray });
       }
 
       return reply.send('No Response was found');
@@ -107,7 +115,6 @@ export const campaignRoutes: FastifyPluginCallback = (
     const cityAdditionalData = getAdditionalData(cityQueryEvaluated);
 
     let sunshine_percentage = '';
-
     if (month == ANN) {
       sunshine_percentage = dataArr['ANN'];
     } else {
