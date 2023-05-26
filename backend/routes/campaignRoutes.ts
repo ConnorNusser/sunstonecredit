@@ -108,7 +108,7 @@ export const campaignRoutes: FastifyPluginCallback = (
 
     let sunshine_percentage = '';
 
-    if (month == ALL) {
+    if (month == ANN) {
       sunshine_percentage = dataArr['ANN'];
     } else {
       sunshine_percentage = dataArr[month.toLocaleUpperCase()];
