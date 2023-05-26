@@ -89,7 +89,7 @@ export const campaignRoutes: FastifyPluginCallback = (
         for (const vals of data) {
           const sunshineData = createSunshineObject(
             vals,
-            ALL,
+            ANN,
             request.query.city
           );
           returnSunArray.push(sunshineData);
