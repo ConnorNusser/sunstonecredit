@@ -1,88 +1,126 @@
-import { ListGroup, ListGroupItem, Button, Table } from 'react-bootstrap';
+import { ListGroup, ListGroupItem, Button, Table, Row } from 'react-bootstrap';
 import { requestCall } from '../api/cities';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-export default Cities = () => {  
-  useEffect(() => {
-    const asyncFunc = async() => {
-      let data = await requestCall();
-      //cityData.push(data);
-      //setCityData(cityData);
-    }
-    asyncFunc();
-  } ,[]
-  )
-
-
-  const [localMonth, setLocalMonth] = useState('');
-  const [localData, setLocalData] = useState('');
-  const[cityData, setCityData] = useState([]);
-  
-  
-  const handleSubmit = async () => {
-    const city = localData;
-    const month = localMonth;
-  
+export default Cities = () => {
+  const [infoLookup, setInfoLookup] = useState('');
+  const handleLookup = async () => {
     try {
       let elementArr = [];
-      const response = await axios.get(`api/campaign/sunshine?city=${city}&month=${month}`);
+      const response = await axios.get(
+        `api/campaign/search?searchTerm=${infoLookup}`
+      );
       const sunArray = response.data.sunArray;
-      sunArray.forEach(element => {
+      sunArray.forEach((element) => {
         const localEle = {
           city: element.city,
-          month:  element.month.charAt(0).toUpperCase() + element.month.slice(1),
+          month: element.month.charAt(0).toUpperCase() + element.month.slice(1),
           sunshine_percentage: element.sunshine_percentage,
           long: element.long,
           lat: element.lat,
-          population: element.population // Use response.data to access the response data
+          population: element.population, // Use response.data to access the response data
         };
-        setCityData(prevData => [...prevData, localEle]);
-        
-      });  
-       // Create a new array with the updated data
+        setCityData((prevData) => [...prevData, localEle]);
+      });
+      // Create a new array with the updated data
     } catch (error) {
       console.error(error);
     }
   };
-  
+  useEffect(() => {
+    const asyncFunc = async () => {
+      let data = await requestCall();
+      //cityData.push(data);
+      //setCityData(cityData);
+    };
+    asyncFunc();
+  }, []);
+
+  const [localMonth, setLocalMonth] = useState('');
+  const [localData, setLocalData] = useState('');
+  const [cityData, setCityData] = useState([]);
+
+  const handleSubmit = async () => {
+    const city = localData;
+    const month = localMonth;
+
+    try {
+      let elementArr = [];
+      const response = await axios.get(
+        `api/campaign/sunshine?city=${city}&month=${month}`
+      );
+      const sunArray = response.data.sunArray;
+      sunArray.forEach((element) => {
+        const localEle = {
+          city: element.city,
+          month: element.month.charAt(0).toUpperCase() + element.month.slice(1),
+          sunshine_percentage: element.sunshine_percentage,
+          long: element.long,
+          lat: element.lat,
+          population: element.population, // Use response.data to access the response data
+        };
+        setCityData((prevData) => [...prevData, localEle]);
+      });
+      // Create a new array with the updated data
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     //<input value = {comp} onChange={(e) => setValue(e.currentTarget.value)}></input>
     <div>
-    <Table>
-    <thead>
-        <tr>
-          <th>City</th>
-          <th>Month</th>
-          <th>Sunshine Percentage</th>
-          <th>Population</th>
-          <th>Lat</th>
-          <th>Long</th>
-        </tr>
-      </thead>
-      <tbody>
-      {cityData.length !== 0 ? (
-        cityData.map((element) => (
-          <tr key={element.city + element.sunshine_percentage}>
-          <td>{element.city}</td>
-          <td>{element.month}</td>
-          <td>{element.sunshine_percentage}</td>
-          <td>{element.population}</td>
-          <td>{element.lat}</td>
-          <td>{element.long}</td>
+      <Row width={'12rem'}>
+        <input
+          placeholder="Search for cities or a month to provide insights"
+          width="12rem"
+          value={infoLookup}
+          onChange={(e) => setInfoLookup(e.target.value)}
+        />
+        <Button size="sm" onClick={handleLookup}>
+          Search
+        </Button>
+      </Row>
+      <Table>
+        <thead>
+          <tr>
+            <th>City</th>
+            <th>Month</th>
+            <th>Sunshine Percentage</th>
+            <th>Population</th>
+            <th>Lat</th>
+            <th>Long</th>
           </tr>
-        ))
-      ) : null}
-      </tbody>
-    </Table>
-    <input value = {localData} onChange={(e) => setLocalData(e.currentTarget.value)} placeholder='City'></input>
-    <input value = {localMonth} onChange={(e) => setLocalMonth(e.currentTarget.value)} placeholder='Month'></input>
-    <Button onClick={handleSubmit}>Submit Local Data</Button>
+        </thead>
+        <tbody>
+          {cityData.length !== 0
+            ? cityData.map((element) => (
+                <tr key={element.city + element.sunshine_percentage}>
+                  <td>{element.city}</td>
+                  <td>{element.month}</td>
+                  <td>{element.sunshine_percentage}</td>
+                  <td>{element.population}</td>
+                  <td>{element.lat}</td>
+                  <td>{element.long}</td>
+                </tr>
+              ))
+            : null}
+        </tbody>
+      </Table>
+      <input
+        value={localData}
+        onChange={(e) => setLocalData(e.currentTarget.value)}
+        placeholder="City"
+      ></input>
+      <input
+        value={localMonth}
+        onChange={(e) => setLocalMonth(e.currentTarget.value)}
+        placeholder="Month"
+      ></input>
+      <Button onClick={handleSubmit}>Submit Local Data</Button>
     </div>
   );
-      
-}
-
-
+};
 
 /*
 

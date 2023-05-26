@@ -1,6 +1,8 @@
 import { FastifyPluginCallback } from 'fastify';
 import { parse } from 'csv-parse/sync';
 
+const ALL = 'all';
+
 const parserFunction = () => {
   const fs = require('fs');
   const path = require('path');
@@ -53,54 +55,89 @@ export const campaignRoutes: FastifyPluginCallback = (
   fastify.get<{ Querystring: { month: string; city: string } }>(
     '/sunshine',
     (request, reply) => {
+      console.log('Testing1234....');
       let data = parserFunction();
+      let month = request.query.month;
+
       if (request.query.month != null && request.query.city != null) {
         for (const vals of data) {
           if (request.query.city == vals.CITY && request.query.month != null) {
-            return reply.send({ sunshine_percent: vals[request.query.month] });
+            const sunshineData = createSunshineObject(
+              vals,
+              request.query.month,
+              request.query.city
+            );
+            return reply.send({ sunArray: [sunshineData] });
           }
         }
       }
       if (request.query.month != null) {
         let returnSunArray: returnSun[] = [];
         for (const vals of data) {
-          let month = request.query.month;
-          const cityQuery = request.query.city;
-          const cityQueryEvaluated = cityEvaluation(cityQuery);
-          const cityAdditionalData = getAdditionalData(cityQueryEvaluated);
-          let sunshine_percentage = vals[request.query.month.toLocaleUpperCase()];
-
-          let sunObject: returnSun = {
-            month: '',
-            sunshine_percentage: '',
-            city: '',
-          };
-
-          if (cityAdditionalData != undefined) {
-            sunObject = {
-              month: month,
-              city: cityAdditionalData.City,
-              sunshine_percentage: sunshine_percentage,
-              population: cityAdditionalData.Population,
-              long: cityAdditionalData.lon,
-              lat: cityAdditionalData.lat,
-            };
-          } else {
-            sunObject = {
-              month: month,
-              city: cityQueryEvaluated,
-              sunshine_percentage: sunshine_percentage,
-            };
-          }
-
-          returnSunArray.push(sunObject);
-          return reply.send({ sunArray: returnSunArray });
+          const sunshineData = createSunshineObject(
+            vals,
+            request.query.month,
+            vals.CITY
+          );
+          returnSunArray.push(sunshineData);
         }
+        return reply.send({ sunArray: returnSunArray });
       }
+
+      if (request.query.city != null) {
+        let returnSunArray: returnSun[] = [];
+        for (const vals of data) {
+          const sunshineData = createSunshineObject(
+            vals,
+            ALL,
+            request.query.city
+          );
+          returnSunArray.push(sunshineData);
+        }
+        return reply.send({ sunArray: returnSunArray });
+      }
+
       return reply.send('No Response was found');
     }
   );
 
+  const createSunshineObject = (dataArr: any, month: string, city: string) => {
+    const cityQuery = city;
+    const cityQueryEvaluated = cityEvaluation(cityQuery);
+    const cityAdditionalData = getAdditionalData(cityQueryEvaluated);
+
+    let sunshine_percentage = '';
+
+    if (month == ALL) {
+      sunshine_percentage = dataArr['ANN'];
+    } else {
+      sunshine_percentage = dataArr[month.toLocaleUpperCase()];
+    }
+
+    let sunObject: returnSun = {
+      month: '',
+      sunshine_percentage: '',
+      city: '',
+    };
+
+    if (cityAdditionalData != undefined) {
+      sunObject = {
+        month: month,
+        city: cityAdditionalData.City,
+        sunshine_percentage: sunshine_percentage,
+        population: cityAdditionalData.Population,
+        long: cityAdditionalData.lon,
+        lat: cityAdditionalData.lat,
+      };
+    } else {
+      sunObject = {
+        month: month,
+        city: cityQueryEvaluated,
+        sunshine_percentage: sunshine_percentage,
+      };
+    }
+    return sunObject;
+  };
   const stateAbbreviations = {
     AL: 'Alabama',
     AK: 'Alaska',
@@ -186,22 +223,21 @@ export const campaignRoutes: FastifyPluginCallback = (
   /*
   Include population, state, longitude, and latitude in the data returned from sunshine api. For the data, use `/backend/data/us-cities-top-1k.csv`
   */
-  fastify.get<{ Querystring: { search: string } }>(
+  fastify.get<{ Querystring: { searchTerm: string } }>(
     '/search',
     (request, reply) => {
-      const checkMonth = convertToAbbreviatedMonth(request.query.search);
+      const checkMonth = convertToAbbreviatedMonth(request.query.searchTerm);
       if (checkMonth == '') {
-        const cityData = cityEvaluation(request.query.search);
+        const cityData = cityEvaluation(request.query.searchTerm);
 
         if (cityData == undefined) {
           return reply.send('No Response was found');
         }
-        return reply.send({ searchData: cityData });
+        return reply.redirect(`sunshine?city=${cityData}`);
       } else {
         // Redirect to '/sunshine' route with the desired query parameters
         const month = checkMonth; // Assuming checkMonth is the desired month
-        const city = request.query.search; // Assuming the search query parameter represents the city
-        return reply.redirect(`/sunshine?month=${month}&city=${city}`);
+        return reply.redirect(`sunshine?month=${month}`);
       }
     }
   );
@@ -210,33 +246,34 @@ export const campaignRoutes: FastifyPluginCallback = (
 };
 
 function convertToAbbreviatedMonth(month: string): string {
+  let monthUpper = month.toLocaleUpperCase();
   const monthMap: { [key: string]: string } = {
-    Jan: 'JAN',
-    Feb: 'FEB',
-    Mar: 'MAR',
-    Apr: 'APR',
-    May: 'MAY',
-    Jun: 'JUN',
-    Jul: 'JUL',
-    Aug: 'AUG',
-    Sep: 'SEP',
-    Oct: 'OCT',
-    Nov: 'NOV',
-    Dec: 'DEC',
-    January: 'JAN',
-    February: 'FEB',
-    March: 'MAR',
-    April: 'APR',
-    June: 'JUN',
-    July: 'JUL',
-    August: 'AUG',
-    September: 'SEP',
-    October: 'OCT',
-    November: 'NOV',
-    December: 'DEC',
+    JAN: 'JAN',
+    FEB: 'FEB',
+    MAR: 'MAR',
+    APR: 'APR',
+    MAY: 'MAY',
+    JUN: 'JUN',
+    JUL: 'JUL',
+    AUG: 'AUG',
+    SEP: 'SEP',
+    OCT: 'OCT',
+    NOV: 'NOV',
+    DEC: 'DEC',
+    JANUARY: 'JAN',
+    FEBRUARY: 'FEB',
+    MARCH: 'MAR',
+    APRIL: 'APR',
+    JUNE: 'JUN',
+    JULY: 'JUL',
+    AUGUST: 'AUG',
+    SEPTEMBER: 'SEP',
+    OCTOBER: 'OCT',
+    NOVEMBER: 'NOV',
+    DECEMBER: 'DEC',
   };
 
-  const monthAbbreviation = monthMap[month];
+  const monthAbbreviation = monthMap[monthUpper];
   return monthAbbreviation || '';
 }
 function cityEvaluation(cityName: string): string {
