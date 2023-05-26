@@ -67,6 +67,10 @@ export default Cities = () => {
     }
   };
 
+  const handleReset = () => {
+    setCityData([]);
+  };
+
   return (
     //<input value = {comp} onChange={(e) => setValue(e.currentTarget.value)}></input>
     <div>
@@ -118,6 +122,7 @@ export default Cities = () => {
         placeholder="Month"
       ></input>
       <Button onClick={handleSubmit}>Submit Local Data</Button>
+      <Button onClick={handleReset}>Reset Local Data</Button>
     </div>
   );
 };
