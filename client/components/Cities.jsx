@@ -1,4 +1,4 @@
-import { ListGroup, ListGroupItem, Button } from 'react-bootstrap';
+import { ListGroup, ListGroupItem, Button, Table } from 'react-bootstrap';
 import { requestCall } from '../api/cities';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
@@ -24,15 +24,22 @@ export default Cities = () => {
     const month = localMonth;
   
     try {
+      let elementArr = [];
       const response = await axios.get(`api/campaign/sunshine?city=${city}&month=${month}`);
-      const element = {
-        city: city,
-        month: month,
-        sunpercentage: response.data.sunshine_percent // Use response.data to access the response data
-      };
-  
-      setCityData(prevData => [...prevData, element]); // Create a new array with the updated data
-      console.log(cityData);
+      const sunArray = response.data.sunArray;
+      sunArray.forEach(element => {
+        const localEle = {
+          city: element.city,
+          month:  element.month.charAt(0).toUpperCase() + element.month.slice(1),
+          sunshine_percentage: element.sunshine_percentage,
+          long: element.long,
+          lat: element.lat,
+          population: element.population // Use response.data to access the response data
+        };
+        setCityData(prevData => [...prevData, localEle]);
+        
+      });  
+       // Create a new array with the updated data
     } catch (error) {
       console.error(error);
     }
@@ -41,15 +48,32 @@ export default Cities = () => {
   return (
     //<input value = {comp} onChange={(e) => setValue(e.currentTarget.value)}></input>
     <div>
-    <ListGroup>
+    <Table>
+    <thead>
+        <tr>
+          <th>City</th>
+          <th>Month</th>
+          <th>Sunshine Percentage</th>
+          <th>Population</th>
+          <th>Lat</th>
+          <th>Long</th>
+        </tr>
+      </thead>
+      <tbody>
       {cityData.length !== 0 ? (
         cityData.map((element) => (
-          <ListGroupItem key={element.sunpercentage}>
-            {element.city}, {element.month}, {element.sunpercentage}
-          </ListGroupItem>
+          <tr key={element.city + element.sunshine_percentage}>
+          <td>{element.city}</td>
+          <td>{element.month}</td>
+          <td>{element.sunshine_percentage}</td>
+          <td>{element.population}</td>
+          <td>{element.lat}</td>
+          <td>{element.long}</td>
+          </tr>
         ))
       ) : null}
-    </ListGroup>
+      </tbody>
+    </Table>
     <input value = {localData} onChange={(e) => setLocalData(e.currentTarget.value)} placeholder='City'></input>
     <input value = {localMonth} onChange={(e) => setLocalMonth(e.currentTarget.value)} placeholder='Month'></input>
     <Button onClick={handleSubmit}>Submit Local Data</Button>

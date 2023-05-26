@@ -3,8 +3,9 @@ import { parse } from 'csv-parse/sync';
 
 const parserFunction = () => {
   const fs = require('fs');
+  const path = require('path');
   const data = fs.readFileSync(
-    '/Users/connorn/Desktop/fullstack-interview/backend/data/us_sunshine.csv',
+    path.join(__dirname, '../data/us_sunshine.csv'),
     'utf-8'
   );
 
@@ -18,8 +19,9 @@ const parserFunction = () => {
 
 const parserTopCities = () => {
   const fs = require('fs');
+  const path = require('path');
   const data = fs.readFileSync(
-    '/Users/connor/Desktop/sunstonecredit/backend/data/us-cities-top-1k.csv',
+    path.join(__dirname, '../data/us-cities-top-1k.csv'),
     'utf-8'
   );
 
@@ -64,9 +66,9 @@ export const campaignRoutes: FastifyPluginCallback = (
         for (const vals of data) {
           let month = request.query.month;
           const cityQuery = request.query.city;
-          const cityAdditionalData = getAdditionalData(cityQuery);
-          let sunshine_percentage = vals[request.query.month];
-          let city = vals['CITY'];
+          const cityQueryEvaluated = cityEvaluation(cityQuery);
+          const cityAdditionalData = getAdditionalData(cityQueryEvaluated);
+          let sunshine_percentage = vals[request.query.month.toLocaleUpperCase()];
 
           let sunObject: returnSun = {
             month: '',
@@ -77,16 +79,16 @@ export const campaignRoutes: FastifyPluginCallback = (
           if (cityAdditionalData != undefined) {
             sunObject = {
               month: month,
-              city: city,
+              city: cityAdditionalData.City,
               sunshine_percentage: sunshine_percentage,
               population: cityAdditionalData.Population,
-              long: cityAdditionalData.long,
+              long: cityAdditionalData.lon,
               lat: cityAdditionalData.lat,
             };
           } else {
             sunObject = {
               month: month,
-              city: city,
+              city: cityQueryEvaluated,
               sunshine_percentage: sunshine_percentage,
             };
           }
@@ -155,14 +157,14 @@ export const campaignRoutes: FastifyPluginCallback = (
   const getAdditionalData = (stateInfo: string): any | undefined => {
     //split stateInfo
     const localData: string[] = stateInfo.split(',');
-    let city: string;
+    let localCity: string = '';
     let fullStateName = '';
     let state = '';
     if (localData.length > 1) {
-      city = localData[0];
+      localCity = localData[0];
       state = localData[1];
       fullStateName =
-        stateAbbreviations[city as keyof typeof stateAbbreviations];
+        stateAbbreviations[state as keyof typeof stateAbbreviations];
     }
 
     const topCities = parserTopCities();
@@ -171,15 +173,15 @@ export const campaignRoutes: FastifyPluginCallback = (
     for (const city of topCities) {
       const cityName: string = city.City;
       const stateName: string = city.State;
-
       if (
-        cityName.toLocaleUpperCase() == city.toLocaleUpperCase() &&
+        cityName.toLocaleUpperCase() == localCity.toLocaleUpperCase() &&
         fullStateName.toLocaleUpperCase() == stateName.toLocaleUpperCase()
       ) {
+        console.log(city);
         return city;
       }
-      return undefined;
     }
+    return undefined;
   };
   /*
   Include population, state, longitude, and latitude in the data returned from sunshine api. For the data, use `/backend/data/us-cities-top-1k.csv`
@@ -237,7 +239,7 @@ function convertToAbbreviatedMonth(month: string): string {
   const monthAbbreviation = monthMap[month];
   return monthAbbreviation || '';
 }
-function cityEvaluation(cityName: string): string | undefined {
+function cityEvaluation(cityName: string): string {
   const parseData = parserFunction();
 
   // Creates a map for city evaluation
@@ -258,5 +260,5 @@ function cityEvaluation(cityName: string): string | undefined {
 
   //Parser for the search engine  if you type in birmingham or birmigham,al
   // it'll return BIRMIGHAM,AL either way
-  return rtCityEvaluation;
+  return rtCityEvaluation || '';
 }
