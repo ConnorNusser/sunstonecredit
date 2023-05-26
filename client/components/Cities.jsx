@@ -11,6 +11,7 @@ export default Cities = () => {
         `api/campaign/search?searchTerm=${infoLookup}`
       );
       const sunArray = response.data.sunArray;
+      setCityData([]);
       sunArray.forEach((element) => {
         const localEle = {
           city: element.city,
