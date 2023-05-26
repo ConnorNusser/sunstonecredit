@@ -55,13 +55,13 @@ export const campaignRoutes: FastifyPluginCallback = (
   fastify.get<{ Querystring: { month: string; city: string } }>(
     '/sunshine',
     (request, reply) => {
-      console.log('Testing1234....');
       let data = parserFunction();
       let month = request.query.month;
 
       if (request.query.month != null && request.query.city != null) {
         for (const vals of data) {
-          if (request.query.city == vals.CITY && request.query.month != null) {
+          const cityQueryEvaluated = cityEvaluation(request.query.city);
+          if (cityQueryEvaluated == vals.CITY) {
             const sunshineData = createSunshineObject(
               vals,
               request.query.month,
